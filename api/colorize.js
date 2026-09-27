@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
       const uploadResult = await uploadResponse.json();
       console.log('Upload result:', JSON.stringify(uploadResult));
 
-      if (uploadResult.status === 200 && uploadResult.data && uploadResult.data.url) {
+      if ((uploadResult.status === 200 || uploadResult.status === 'success') && uploadResult.data && uploadResult.data.url) {
         // Convert to direct download URL (tmpfiles.org returns a page URL)
         uploadedUrl = uploadResult.data.url.replace('/file/', '/dl/');
         console.log('Uploaded to:', uploadedUrl);
