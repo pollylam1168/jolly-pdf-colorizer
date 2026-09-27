@@ -1,8 +1,15 @@
 /**
  * Vercel Serverless Function - MiniMax PDF Colorization API
+ * 
+ * Flow:
+ * 1. Receive base64 image from frontend
+ * 2. Upload to temporary image hosting
+ * 3. Send URL to MiniMax API
+ * 4. Return colored result
  */
 
 const MINIMAX_API_URL = "https://api.minimax.io/v1/image_generation";
+const UPLOAD_API_URL = "https://tmpfiles.org/api/v1/upload";
 
 const COLOR_PROMPT = `Colorize this black and white children's educational worksheet. Keep ALL black outlines and text exactly the same. Add realistic, natural colors:
 
@@ -55,7 +62,6 @@ module.exports = async (req, res) => {
     // Clean up base64 - remove data URI prefix if present
     let cleanBase64 = imageBase64;
     if (imageBase64.includes(',')) {
-      // It's a data URI like "data:image/png;base64,..."
       cleanBase64 = imageBase64.split(',')[1];
     }
 
@@ -64,30 +70,62 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: '圖片數據太短或無效' });
     }
 
-    // Use subject_reference with RAW base64 (no data URI prefix!)
-    // MiniMax accepts: URL OR raw base64 string
-    const requestBody = {
-      model: "image-01",
-      prompt: COLOR_PROMPT,
-      response_format: "base64",
-      aspect_ratio: "1:1",
-      subject_reference: [
-        {
-          type: "character",
-          image_file: cleanBase64  // RAW base64 only, no data: prefix!
-        }
-      ]
-    };
+    // Convert base64 to binary buffer
+    const imageBuffer = Buffer.from(cleanBase64, 'base64');
 
-    console.log('Calling MiniMax API...');
+    console.log('Uploading image to tmpfiles.org...');
 
+    // Upload to tmpfiles.org
+    const formData = new FormData();
+    const blob = new Blob([imageBuffer], { type: 'image/png' });
+    formData.append('file', blob, 'image.png');
+
+    let uploadedUrl = null;
+    try {
+      const uploadResponse = await fetch(UPLOAD_API_URL, {
+        method: 'POST',
+        body: formData
+      });
+
+      const uploadResult = await uploadResponse.json();
+      console.log('Upload result:', JSON.stringify(uploadResult));
+
+      if (uploadResult.status === 200 && uploadResult.data && uploadResult.data.url) {
+        // Convert to direct download URL (tmpfiles.org returns a page URL)
+        uploadedUrl = uploadResult.data.url.replace('/file/', '/dl/');
+        console.log('Uploaded to:', uploadedUrl);
+      } else {
+        throw new Error('Upload failed: ' + JSON.stringify(uploadResult));
+      }
+    } catch (uploadError) {
+      console.error('Upload error:', uploadError);
+      return res.status(500).json({ 
+        success: false, 
+        error: '圖片上傳失敗: ' + uploadError.message 
+      });
+    }
+
+    console.log('Calling MiniMax API with URL:', uploadedUrl);
+
+    // Call MiniMax with URL instead of base64
     const miniMaxResponse = await fetch(MINIMAX_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({
+        model: "image-01",
+        prompt: COLOR_PROMPT,
+        response_format: "base64",
+        aspect_ratio: "1:1",
+        subject_reference: [
+          {
+            type: "character",
+            image_file: uploadedUrl  // Use URL, not base64!
+          }
+        ]
+      })
     });
 
     const responseText = await miniMaxResponse.text();
@@ -111,6 +149,8 @@ module.exports = async (req, res) => {
       });
     }
 
+    console.log('MiniMax result keys:', Object.keys(result));
+
     // Check for base64 image in response
     let base64Image = null;
     
@@ -119,7 +159,7 @@ module.exports = async (req, res) => {
     } else if (result.base64) {
       base64Image = result.base64;
     } else if (result.data && result.data[0] && result.data[0].url) {
-      // URL response
+      // If it returns URL instead of base64
       return res.status(200).json({
         success: true,
         imageUrl: result.data[0].url,
