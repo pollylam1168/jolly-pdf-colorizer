@@ -51,17 +51,27 @@ module.exports = async (req, res) => {
 
     console.log(`Processing page ${page}...`);
 
+    // Use subject_reference for image-to-image colorization
+    const requestBody = {
+      model: "image-01",
+      prompt: COLOR_PROMPT,
+      response_format: "base64",
+      aspect_ratio: "1:1",
+      subject_reference: [
+        {
+          type: "character",
+          image_file: `data:image/png;base64,${imageBase64}`
+        }
+      ]
+    };
+
     const miniMaxResponse = await fetch(MINIMAX_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        model: "MiniMax-Image-01",
-        prompt: COLOR_PROMPT,
-        image_base64: imageBase64
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!miniMaxResponse.ok) {
@@ -69,14 +79,24 @@ module.exports = async (req, res) => {
       console.error('MiniMax API Error:', errorText);
       return res.status(500).json({ 
         success: false, 
-        error: 'MiniMax API 調用失敗' 
+        error: 'MiniMax API 調用失敗: ' + errorText 
       });
     }
 
     const result = await miniMaxResponse.json();
 
+    // Check for base64 image in response
     if (result.data && result.data[0] && result.data[0].base64) {
       const imageUrl = `data:image/png;base64,${result.data[0].base64}`;
+      
+      return res.status(200).json({
+        success: true,
+        imageUrl: imageUrl,
+        page: page
+      });
+    } else if (result.base64) {
+      // Alternative response format
+      const imageUrl = `data:image/png;base64,${result.base64}`;
       
       return res.status(200).json({
         success: true,
@@ -87,7 +107,7 @@ module.exports = async (req, res) => {
       console.error('MiniMax Response:', JSON.stringify(result));
       return res.status(500).json({ 
         success: false, 
-        error: 'API 返回格式錯誤' 
+        error: 'API 返回格式錯誤: ' + JSON.stringify(result).substring(0, 200) 
       });
     }
 
