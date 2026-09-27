@@ -52,10 +52,11 @@ module.exports = async (req, res) => {
 
     console.log(`Processing page ${page}, image length: ${imageBase64.length}`);
 
-    // Clean up base64 - remove any data URI prefix if present
+    // Clean up base64 - remove data URI prefix if present
     let cleanBase64 = imageBase64;
-    if (cleanBase64.includes(',')) {
-      cleanBase64 = cleanBase64.split(',')[1];
+    if (imageBase64.includes(',')) {
+      // It's a data URI like "data:image/png;base64,..."
+      cleanBase64 = imageBase64.split(',')[1];
     }
 
     // Validate base64
@@ -63,7 +64,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: '圖片數據太短或無效' });
     }
 
-    // Use subject_reference for image-to-image colorization with MiniMax
+    // Use subject_reference with RAW base64 (no data URI prefix!)
+    // MiniMax accepts: URL OR raw base64 string
     const requestBody = {
       model: "image-01",
       prompt: COLOR_PROMPT,
@@ -72,7 +74,7 @@ module.exports = async (req, res) => {
       subject_reference: [
         {
           type: "character",
-          image_file: cleanBase64
+          image_file: cleanBase64  // RAW base64 only, no data: prefix!
         }
       ]
     };
@@ -89,7 +91,6 @@ module.exports = async (req, res) => {
     });
 
     const responseText = await miniMaxResponse.text();
-    console.log('MiniMax response status:', miniMaxResponse.status);
 
     if (!miniMaxResponse.ok) {
       console.error('MiniMax API Error:', responseText);
@@ -106,19 +107,24 @@ module.exports = async (req, res) => {
       console.error('Failed to parse MiniMax response:', responseText.substring(0, 200));
       return res.status(500).json({ 
         success: false, 
-        error: 'API 返回格式錯誤: ' + responseText.substring(0, 200) 
+        error: 'API 返回格式錯誤' 
       });
     }
 
-    console.log('MiniMax result:', JSON.stringify(result).substring(0, 500));
-
-    // Check for base64 image in response - MiniMax returns in different formats
+    // Check for base64 image in response
     let base64Image = null;
     
     if (result.data && result.data[0] && result.data[0].base64) {
       base64Image = result.data[0].base64;
     } else if (result.base64) {
       base64Image = result.base64;
+    } else if (result.data && result.data[0] && result.data[0].url) {
+      // URL response
+      return res.status(200).json({
+        success: true,
+        imageUrl: result.data[0].url,
+        page: page
+      });
     }
 
     if (base64Image) {
@@ -130,7 +136,7 @@ module.exports = async (req, res) => {
         page: page
       });
     } else {
-      console.error('No base64 image in response:', JSON.stringify(result).substring(0, 500));
+      console.error('No image in response:', JSON.stringify(result).substring(0, 500));
       return res.status(500).json({ 
         success: false, 
         error: 'API 返回格式錯誤: ' + JSON.stringify(result).substring(0, 300) 
