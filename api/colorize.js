@@ -1,5 +1,10 @@
 /**
  * Vercel Serverless Function - MiniMax PDF Colorization API
+ * 
+ * Flow:
+ * 1. Receive image URL or base64 from frontend
+ * 2. Send directly to MiniMax API
+ * 3. Return colored result
  */
 
 const MINIMAX_API_URL = "https://api.minimax.io/v1/image_generation";
@@ -39,93 +44,38 @@ module.exports = async (req, res) => {
       });
     }
 
-    let imageBase64 = null;
+    let imageData = null;
     let page = '1';
 
-    if (req.body && req.body.image_base64) {
-      imageBase64 = req.body.image_base64;
+    // Accept either image_url or image_base64
+    if (req.body && req.body.image_url) {
+      imageData = { type: 'url', value: req.body.image_url };
+      page = req.body.page || '1';
+    } else if (req.body && req.body.image_base64) {
+      imageData = { type: 'base64', value: req.body.image_base64 };
       page = req.body.page || '1';
     } else {
       return res.status(400).json({ error: '沒有上傳圖片' });
     }
 
-    // Clean up base64
-    let cleanBase64 = imageBase64;
-    if (imageBase64.includes(',')) {
-      cleanBase64 = imageBase64.split(',')[1];
+    console.log(`Processing page ${page}, type: ${imageData.type}`);
+
+    // Clean base64 if needed
+    let cleanValue = imageData.value;
+    if (imageData.type === 'base64' && imageData.value.includes(',')) {
+      cleanValue = imageData.value.split(',')[1];
     }
 
-    if (!cleanBase64 || cleanBase64.length < 100) {
+    if (imageData.type === 'base64' && (!cleanValue || cleanValue.length < 100)) {
       return res.status(400).json({ error: '圖片數據太短或無效' });
     }
 
-    console.log(`Processing page ${page}, image length: ${cleanBase64.length}`);
-
-    // Upload to imgbb
-    const imgbbApiKey = process.env.IMGBB_API_KEY;
-    let uploadedUrl = null;
-
-    if (imgbbApiKey) {
-      console.log('Uploading to imgbb...');
-      try {
-        const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
-          method: 'POST',
-          body: new URLSearchParams({
-            image: cleanBase64,
-            expiration: '604800'
-          })
-        });
-        const imgbbResult = await imgbbResponse.json();
-        if (imgbbResult.success && imgbbResult.data && imgbbResult.data.url) {
-          uploadedUrl = imgbbResult.data.url;
-          console.log('Uploaded to imgbb:', uploadedUrl);
-        }
-      } catch (e) {
-        console.log('imgbb upload failed, trying alternative...');
-      }
-    }
-
-    // Try uploading to catbox.moe as fallback
-    if (!uploadedUrl) {
-      console.log('Uploading to catbox.moe...');
-      try {
-        const imageBuffer = Buffer.from(cleanBase64, 'base64');
-        const formData = new FormData();
-        const blob = new Blob([imageBuffer], { type: 'image/png' });
-        formData.append('reqtype', 'fileurl');
-        formData.append('fileToUpload', blob, 'image.png');
-
-        const catboxResponse = await fetch('https://catbox.moe/user/api.php', {
-          method: 'POST',
-          body: formData
-        });
-        const catboxUrl = await catboxResponse.text();
-        if (catboxUrl.startsWith('https://')) {
-          uploadedUrl = catboxUrl;
-          console.log('Uploaded to catbox:', uploadedUrl);
-        }
-      } catch (e) {
-        console.log('catbox upload failed:', e.message);
-      }
-    }
-
-    if (!uploadedUrl) {
-      return res.status(500).json({ 
-        success: false, 
-        error: '圖片上傳失敗，請稍後再試' 
-      });
-    }
-
-    console.log('Calling MiniMax API with URL:', uploadedUrl);
-
-    // Call MiniMax with URL
-    const miniMaxResponse = await fetch(MINIMAX_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    // Build MiniMax request
+    // For image-01 with subject_reference, it needs a URL or base64
+    let miniMaxBody;
+    
+    if (imageData.type === 'url') {
+      miniMaxBody = {
         model: "image-01",
         prompt: COLOR_PROMPT,
         response_format: "base64",
@@ -133,10 +83,35 @@ module.exports = async (req, res) => {
         subject_reference: [
           {
             type: "character",
-            image_file: uploadedUrl
+            image_file: imageData.value
           }
         ]
-      })
+      };
+    } else {
+      // For base64, include it directly in subject_reference
+      miniMaxBody = {
+        model: "image-01",
+        prompt: COLOR_PROMPT,
+        response_format: "base64",
+        aspect_ratio: "1:1",
+        subject_reference: [
+          {
+            type: "character",
+            image_file: cleanValue
+          }
+        ]
+      };
+    }
+
+    console.log('Calling MiniMax API...');
+
+    const miniMaxResponse = await fetch(MINIMAX_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(miniMaxBody)
     });
 
     const responseText = await miniMaxResponse.text();
@@ -158,6 +133,8 @@ module.exports = async (req, res) => {
         error: 'API 返回格式錯誤' 
       });
     }
+
+    console.log('MiniMax response keys:', Object.keys(result));
 
     let base64Image = null;
     
