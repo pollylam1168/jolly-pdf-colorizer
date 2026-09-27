@@ -102,233 +102,234 @@
     
     .upload-area.dragover {
       border-color: var(--primary);
-      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      background: #EEF2FF;
       transform: scale(1.02);
     }
     
-    .upload-icon { font-size: 64px; margin-bottom: 16px; }
-    .upload-area h3 { font-size: 18px; margin-bottom: 8px; }
-    .upload-area p { font-size: 14px; margin-bottom: 16px; }
-    .upload-area input { display: none; }
+    .upload-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .upload-area h3 { font-size: 20px; margin-bottom: 8px; }
+    .upload-area p { color: var(--text-light); margin: 0; }
     
     .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
+      border-radius: 12px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      border: none;
       transition: all 0.2s;
     }
     
-    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
     .btn-primary:hover {
-      background: #6366F1;
+      background: #4338CA;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
     
-    .btn-secondary { background: var(--border); color: var(--text); }
-    .btn-secondary:hover { background: #CBD5E1; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
     
-    .review-section { display: none; gap: 24px; }
-    .review-section.active { display: grid; grid-template-columns: 200px 1fr 280px; }
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
     
-    .page-list {
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+    
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .viewer-section {
       background: var(--white);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      height: fit-content;
-      position: sticky;
-      top: 100px;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      display: none;
     }
     
-    .page-list h3 { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+    .viewer-section.active { display: block; }
     
-    .page-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    .viewer-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .toolbar-right {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .page-indicator {
+      background: var(--bg);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .viewer-main {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .page-thumbnails {
+      width: 120px;
+      flex-shrink: 0;
+    }
+    
+    .thumbnail-list {
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-      max-height: 70vh;
+      max-height: 600px;
       overflow-y: auto;
     }
     
-    .page-thumb {
-      aspect-ratio: 1;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-light);
-      transition: all 0.2s;
+    .thumbnail {
       position: relative;
-      background: #FAFAFA;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
     }
     
-    .page-thumb:hover {
-      border-color: var(--primary);
-      background: #F5F3FF;
-      transform: scale(1.05);
+    .thumbnail:hover { border-color: var(--primary); }
+    .thumbnail.active { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+    
+    .thumbnail img {
+      width: 100%;
+      display: block;
     }
     
-    .page-thumb.active {
-      border-color: var(--primary);
-      background: #EEF2FF;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    .thumbnail-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      font-size: 11px;
+      text-align: center;
+      padding: 4px;
     }
     
-    .page-thumb.approved::after {
-      content: '✓';
+    .thumbnail-status {
       position: absolute;
       top: 4px;
       right: 4px;
-      width: 16px;
-      height: 16px;
-      background: var(--secondary);
-      color: white;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      font-size: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 12px;
     }
     
-    .page-thumb.coloring { background: #DBEAFE; }
+    .thumbnail-status.colored { background: var(--secondary); color: white; }
+    .thumbnail-status.approved { background: var(--primary); color: white; }
+    .thumbnail-status.pending { background: var(--warning); color: white; }
     
     .compare-view {
-      background: var(--white);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      flex: 1;
+      display: flex;
+      gap: 16px;
     }
     
-    .compare-toolbar {
-      padding: 16px 20px;
+    .view-panel {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .panel-header {
+      background: var(--bg);
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 14px;
       border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      background: #FAFAFA;
+      align-items: center;
     }
     
-    .page-info { display: flex; align-items: center; gap: 12px; }
-    .page-number { font-size: 18px; font-weight: 700; }
-    
-    .page-status {
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .page-status.pending { background: #FEF3C7; color: #92400E; }
-    .page-status.coloring { background: #DBEAFE; color: #1E40AF; }
-    .page-status.colored { background: #E0E7FF; color: #4338CA; }
-    .page-status.approved { background: #D1FAE5; color: #065F46; }
-    
-    .compare-container { display: grid; grid-template-columns: 1fr 1fr; }
-    
-    .compare-pane {
-      position: relative;
-      overflow: hidden;
-      background: #F8FAFC;
-    }
-    
-    .pane-label {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0,0,0,0.75);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      z-index: 10;
-      backdrop-filter: blur(4px);
-    }
-    
-    .pane-scroll {
-      height: 60vh;
+    .scroll-container {
+      height: 600px;
       overflow: auto;
+      position: relative;
+    }
+    
+    .scroll-container canvas {
+      display: block;
+      width: 100%;
+    }
+    
+    .nav-buttons {
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 16px;
+      gap: 8px;
     }
     
-    .pane-scroll canvas {
-      max-width: 100%;
+    .nav-btn {
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .compare-footer {
-      padding: 12px 20px;
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      background: #FAFAFA;
+      justify-content: center;
+      transition: all 0.2s;
     }
     
-    .page-nav { display: flex; gap: 8px; }
-    .action-btns { display: flex; gap: 8px; }
-    
-    .btn-success { background: var(--secondary); color: white; }
-    .btn-success:hover { background: #059669; }
-    
-    .side-panel {
-      background: var(--white);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      height: fit-content;
-      position: sticky;
-      top: 100px;
-      max-height: calc(100vh - 120px);
-      overflow-y: auto;
-    }
-    
-    .info-box {
-      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid #C7D2FE;
-    }
-    
-    .info-box h4 {
+    .nav-btn:hover:not(:disabled) {
+      border-color: var(--primary);
       color: var(--primary);
-      margin-bottom: 10px;
-      font-size: 14px;
     }
     
-    .info-box ul { font-size: 12px; color: var(--text); padding-left: 16px; }
-    .info-box li { margin-bottom: 4px; }
-    
-    .btn-color-all {
-      width: 100%;
-      padding: 14px;
-      font-size: 15px;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--primary), #7C3AED);
-      color: white;
-    }
-    
-    .btn-download {
-      width: 100%;
-      padding: 14px;
-      font-size: 15px;
-      background: linear-gradient(135deg, var(--secondary), #059669);
-      color: white;
-    }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     
     .loading-overlay {
       position: fixed;
@@ -337,50 +338,55 @@
       right: 0;
       bottom: 0;
       background: rgba(0,0,0,0.6);
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      backdrop-filter: blur(4px);
     }
     
-    .loading-overlay.active { display: flex; }
-    
-    .loading-box {
+    .loading-modal {
       background: white;
-      padding: 40px 60px;
       border-radius: 20px;
+      padding: 40px;
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      min-width: 400px;
     }
     
-    .spinner {
-      width: 48px;
-      height: 48px;
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
       border: 4px solid var(--border);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
+      margin: 0 auto 20px;
     }
     
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-box h3 { font-size: 18px; margin-bottom: 8px; }
-    .loading-box p { color: var(--text-light); font-size: 14px; }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
     
-    .loading-progress {
-      width: 200px;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      margin-top: 12px;
+    .loading-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .loading-subtitle {
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
       overflow: hidden;
     }
     
-    .loading-progress-bar {
+    .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
-      border-radius: 3px;
       transition: width 0.3s;
     }
     
@@ -388,32 +394,69 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      padding: 14px 20px;
-      background: var(--text);
+      padding: 16px 24px;
+      border-radius: 12px;
       color: white;
-      border-radius: 10px;
-      font-size: 14px;
       font-weight: 500;
       z-index: 1001;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s;
+      animation: slideIn 0.3s ease;
     }
     
-    .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--secondary); }
     .toast.error { background: var(--danger); }
+    .toast.info { background: var(--primary); }
     
-    @media (max-width: 1100px) {
-      .review-section.active { grid-template-columns: 1fr; }
-      .page-list, .side-panel { position: static; max-height: none; }
-      .page-grid { grid-template-columns: repeat(4, 1fr); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     
-    @media (max-width: 768px) {
-      .header { flex-direction: column; gap: 12px; text-align: center; }
-      .compare-container { grid-template-columns: 1fr; }
+    .empty-state {
+      padding: 60px;
+      text-align: center;
+      color: var(--text-light);
     }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .color-picker-container input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .page-input-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-input {
+      width: 60px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .page-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -422,7 +465,7 @@
       <div class="logo-icon">🎨</div>
       <div>
         <h1>Jolly PDF 智能上色系統</h1>
-        <span>MiniMax AI 自動為你上色</span>
+        <span>使用 MiniMax AI 為黑白教材上色</span>
       </div>
     </div>
     <div class="stats-bar">
@@ -436,335 +479,368 @@
       </div>
       <div class="stat">
         <div class="stat-value" id="stat-approved">0</div>
-        <div class="stat-label">已接受</div>
+        <div class="stat-label">已確認</div>
       </div>
     </div>
   </header>
   
-  <div class="container">
+  <main class="container">
     <section class="upload-section" id="upload-section">
-      <h2>📄 上傳 Jolly 黑白 PDF</h2>
-      <p>系統會用 MiniMax AI 自動為每頁上色，顏色符合現實（例如：BB係肉色、青蛙係綠色）</p>
+      <h2>📤 上傳 PDF 檔案</h2>
+      <p>支援 Jolly 系列中文教材 PDF，系統會自動為每頁上色</p>
+      
       <div class="upload-area" id="upload-area">
-        <div class="upload-icon">📎</div>
-        <h3>拖放 PDF 到這裡，或點擊選擇文件</h3>
-        <p>支援 PDF 文件，AI 自動分析內容並選擇合理顏色</p>
-        <button class="btn btn-primary" style="margin-top: 12px;">選擇 PDF 文件</button>
-        <input type="file" id="file-input" accept=".pdf">
+        <div class="upload-icon">📄</div>
+        <h3>點擊或拖曳 PDF 檔案到此處</h3>
+        <p>或點擊選擇檔案</p>
+        <input type="file" id="file-input" accept=".pdf" style="display:none">
       </div>
     </section>
     
-    <section class="review-section" id="review-section">
-      <div class="page-list">
-        <h3>📑 所有頁面</h3>
-        <div class="page-grid" id="page-grid"></div>
-      </div>
-      
-      <div class="compare-view">
-        <div class="compare-toolbar">
-          <div class="page-info">
-            <span class="page-number" id="current-page-label">第 1 頁</span>
-            <span class="page-status pending" id="page-status-badge">待上色</span>
+    <section class="viewer-section" id="viewer-section">
+      <div class="viewer-toolbar">
+        <div class="toolbar-left">
+          <span class="file-name" id="file-name">document.pdf</span>
+          <div class="page-indicator">
+            <span id="current-page-display">1</span> / <span id="total-pages-display">1</span>
+          </div>
+          <div class="page-input-container">
+            <input type="number" class="page-input" id="page-input" min="1" value="1">
+            <button class="btn btn-outline" onclick="goToPageFromInput()">跳轉</button>
+          </div>
+          <div class="nav-buttons">
+            <button class="nav-btn" id="prev-page" title="上一頁">◀</button>
+            <button class="nav-btn" id="next-page" title="下一頁">▶</button>
           </div>
         </div>
+        <div class="toolbar-right">
+          <button class="btn btn-primary" id="batch-colorize">
+            ✨ AI 上色
+          </button>
+          <button class="btn btn-secondary" id="approve-page">
+            ✓ 確認
+          </button>
+          <button class="btn btn-secondary" id="download-pdf">
+            📥 下載彩色 PDF
+          </button>
+        </div>
+      </div>
+      
+      <div class="viewer-main">
+        <div class="page-thumbnails">
+          <div class="thumbnail-list" id="thumbnail-list"></div>
+        </div>
         
-        <div class="compare-container">
-          <div class="compare-pane">
-            <div class="pane-label">📄 原版（黑白）</div>
-            <div class="pane-scroll" id="original-scroll">
+        <div class="compare-view">
+          <div class="view-panel">
+            <div class="panel-header">
+              <span>📄 原始版本</span>
+              <span id="original-page-label">第 1 頁</span>
+            </div>
+            <div class="scroll-container" id="original-scroll">
               <canvas id="original-canvas"></canvas>
             </div>
           </div>
-          <div class="compare-pane">
-            <div class="pane-label">🎨 上色版本</div>
-            <div class="pane-scroll" id="colored-scroll">
+          
+          <div class="view-panel">
+            <div class="panel-header">
+              <span>🎨 上色版本</span>
+              <div class="color-picker-container">
+                <input type="color" id="bg-color-picker" value="#ffffff" title="背景顏色">
+              </div>
+            </div>
+            <div class="scroll-container" id="colored-scroll">
               <canvas id="colored-canvas"></canvas>
             </div>
           </div>
         </div>
-        
-        <div class="compare-footer">
-          <div class="page-nav">
-            <button class="btn btn-secondary" id="prev-page">←</button>
-            <button class="btn btn-secondary" id="next-page">→</button>
-          </div>
-          <div class="action-btns">
-            <button class="btn btn-success" id="approve-page">✓ 接受</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="side-panel">
-        <div class="info-box">
-          <h4>🔮 AI 顏色邏輯</h4>
-          <ul>
-            <li>👶 人類 → 標準肉色</li>
-            <li>🐸 青蛙 → 自然綠色</li>
-            <li>🦋 蝴蝶 → 橙黑翅膀</li>
-            <li>🦓 斑馬 → 黑白條紋</li>
-            <li>☁️ 天空 → 淺藍色</li>
-          </ul>
-        </div>
-        
-        <button class="btn btn-primary btn-color-all" id="batch-colorize">
-          ✨ 為所有頁面 AI 上色
-        </button>
-        
-        <button class="btn btn-success btn-download" id="download-pdf">
-          ⬇️ 下載彩色 PDF
-        </button>
       </div>
     </section>
-  </div>
+  </main>
   
-  <div class="loading-overlay" id="loading-overlay">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <h3 id="loading-title">AI 正在上色...</h3>
-      <p id="loading-text">第 1 / 8 頁</p>
-      <div class="loading-progress">
-        <div class="loading-progress-bar" id="progress-bar" style="width: 0%"></div>
+  <div class="loading-overlay hidden" id="loading-overlay">
+    <div class="loading-modal">
+      <div class="loading-spinner"></div>
+      <div class="loading-title" id="loading-title">AI 上色中...</div>
+      <div class="loading-subtitle" id="loading-subtitle">第 1 / 8 頁</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
       </div>
     </div>
   </div>
-  
-  <div class="toast" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    // 狀態
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
     let pdfDoc = null;
     let currentPage = 1;
     let totalPages = 0;
-    let pageStates = [];
     let pageImages = [];
     let coloredImages = [];
+    let pageStates = [];
     let pageCanvases = [];
     
-    // DOM
-    const uploadSection = document.getElementById('upload-section');
-    const reviewSection = document.getElementById('review-section');
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('file-input');
-    const pageGrid = document.getElementById('page-grid');
+    const uploadSection = document.getElementById('upload-section');
+    const viewerSection = document.getElementById('viewer-section');
     const originalCanvas = document.getElementById('original-canvas');
     const coloredCanvas = document.getElementById('colored-canvas');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const toast = document.getElementById('toast');
     
-    function init() {
-      setupUpload();
-      setupPageNav();
-      setupActions();
-      setupSyncScroll();
-    }
+    // Event listeners
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
     
-    function setupUpload() {
-      uploadArea.addEventListener('click', () => fileInput.click());
-      
-      uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-      });
-      
-      uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-      });
-      
-      uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type === 'application/pdf') {
-          handleFile(file);
-        } else {
-          showToast('請上傳 PDF 文件', 'error');
-        }
-      });
-      
-      fileInput.addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-          handleFile(e.target.files[0]);
-        }
-      });
-    }
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
     
-    async function handleFile(file) {
-      showLoading('載入 PDF...', '正在讀取文件');
-      
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        totalPages = pdfDoc.numPages;
-        
-        pageStates = Array(totalPages).fill('pending');
-        coloredImages = Array(totalPages).fill(null);
-        pageCanvases = Array(totalPages).fill(null);
-        
-        await renderAllPages();
-        generatePageGrid();
-        
-        uploadSection.style.display = 'none';
-        reviewSection.classList.add('active');
-        
-        await renderPage(1);
-        updateStats();
-        hideLoading();
-        showToast('PDF 載入成功！共有 ' + totalPages + ' 頁', 'success');
-        
-      } catch (error) {
-        hideLoading();
-        showToast('PDF 載入失敗：' + error.message, 'error');
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        handlePDF(files[0]);
       }
+    });
+    
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) handlePDF(file);
     }
     
-    async function renderAllPages() {
+    async function handlePDF(file) {
+      showLoading('載入 PDF 中...', '');
+      
+      const arrayBuffer = await file.arrayBuffer();
+      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      totalPages = pdfDoc.numPages;
+      
+      document.getElementById('file-name').textContent = file.name;
+      document.getElementById('total-pages-display').textContent = totalPages;
+      
+      pageImages = [];
+      coloredImages = [];
+      pageStates = new Array(totalPages).fill('pending');
+      pageCanvases = [];
+      
       for (let i = 1; i <= totalPages; i++) {
-        const page = await pdfDoc.getPage(i);
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
-        
         const canvas = document.createElement('canvas');
+        const scale = 2;
+        const viewport = (await pdfDoc.getPage(i)).getViewport({ scale });
+        
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         
-        await page.render({
-          canvasContext: canvas.getContext('2d'),
-          viewport
+        const context = canvas.getContext('2d');
+        await (await pdfDoc.getPage(i)).render({
+          canvasContext: context,
+          viewport: viewport
         }).promise;
         
-        pageCanvases[i - 1] = canvas;
-        pageImages[i - 1] = canvas.toDataURL('image/png').split(',')[1];
+        pageImages.push(canvas.toDataURL('image/png'));
+        pageCanvases.push(canvas);
+        coloredImages.push(null);
       }
+      
+      renderThumbnails();
+      renderPage(1);
+      
+      uploadSection.classList.add('hidden');
+      viewerSection.classList.add('active');
+      updateStats();
+      hideLoading();
     }
     
-    function generatePageGrid() {
-      pageGrid.innerHTML = '';
+    function renderThumbnails() {
+      const list = document.getElementById('thumbnail-list');
+      list.innerHTML = '';
+      
       for (let i = 1; i <= totalPages; i++) {
         const thumb = document.createElement('div');
-        thumb.className = 'page-thumb';
-        thumb.textContent = i;
-        thumb.addEventListener('click', () => goToPage(i));
-        pageGrid.appendChild(thumb);
+        thumb.className = 'thumbnail' + (i === currentPage ? ' active' : '');
+        thumb.onclick = () => renderPage(i);
+        
+        const img = document.createElement('img');
+        img.src = pageImages[i - 1];
+        thumb.appendChild(img);
+        
+        const label = document.createElement('div');
+        label.className = 'thumbnail-label';
+        label.textContent = `第 ${i} 頁`;
+        thumb.appendChild(label);
+        
+        const status = document.createElement('div');
+        status.className = 'thumbnail-status ' + pageStates[i - 1];
+        status.textContent = pageStates[i - 1] === 'colored' ? '✓' : 
+                            pageStates[i - 1] === 'approved' ? '★' : '○';
+        thumb.appendChild(status);
+        
+        list.appendChild(thumb);
       }
     }
     
-    async function renderPage(pageNum) {
+    function renderPage(pageNum) {
       currentPage = pageNum;
       
-      document.querySelectorAll('.page-thumb').forEach((thumb, i) => {
-        thumb.classList.remove('active', 'coloring', 'approved');
-        if (i + 1 === pageNum) thumb.classList.add('active');
-        if (pageStates[i] === 'coloring') thumb.classList.add('coloring');
-        if (pageStates[i] === 'approved') thumb.classList.add('approved');
-      });
+      document.getElementById('current-page-display').textContent = pageNum;
+      document.getElementById('page-input').value = pageNum;
+      document.getElementById('original-page-label').textContent = `第 ${pageNum} 頁`;
       
-      document.getElementById('current-page-label').textContent = `第 ${pageNum} 頁`;
-      updateStatusBadge(pageNum);
+      // Render original
+      const origCtx = originalCanvas.getContext('2d');
+      origCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
       
-      originalCanvas.width = pageCanvases[pageNum - 1].width;
-      originalCanvas.height = pageCanvases[pageNum - 1].height;
-      originalCanvas.getContext('2d').drawImage(pageCanvases[pageNum - 1], 0, 0);
+      const origImg = new Image();
+      origImg.src = pageImages[pageNum - 1];
+      origImg.onload = () => {
+        originalCanvas.width = origImg.width;
+        originalCanvas.height = origImg.height;
+        origCtx.drawImage(origImg, 0, 0);
+      };
       
-      coloredCanvas.width = pageCanvases[pageNum - 1].width;
-      coloredCanvas.height = pageCanvases[pageNum - 1].height;
+      // Render colored
+      coloredCanvas.width = originalCanvas.width;
+      coloredCanvas.height = originalCanvas.height;
+      const colorCtx = coloredCanvas.getContext('2d');
+      colorCtx.fillStyle = document.getElementById('bg-color-picker').value;
+      colorCtx.fillRect(0, 0, coloredCanvas.width, coloredCanvas.height);
       
       if (coloredImages[pageNum - 1]) {
-        const ctx = coloredCanvas.getContext('2d');
-        const img = new Image();
-        img.src = coloredImages[pageNum - 1];
-        await new Promise(resolve => img.onload = () => {
-          ctx.drawImage(img, 0, 0, coloredCanvas.width, coloredCanvas.height);
-        });
-      } else {
-        coloredCanvas.getContext('2d').drawImage(pageCanvases[pageNum - 1], 0, 0);
-      }
-    }
-    
-    function updateStatusBadge(pageNum) {
-      const badge = document.getElementById('page-status-badge');
-      badge.className = `page-status ${pageStates[pageNum - 1]}`;
-      const texts = { pending: '待上色', coloring: '上色中...', colored: '已上色', approved: '已接受' };
-      badge.textContent = texts[pageStates[pageNum - 1]];
-    }
-    
-    async function colorizeAllPages() {
-      const pagesToColor = [];
-      for (let i = 0; i < totalPages; i++) {
-        if (pageStates[i] === 'pending' || pageStates[i] === 'colored') {
-          pagesToColor.push(i + 1);
-        }
+        const colorImg = new Image();
+        colorImg.src = coloredImages[pageNum - 1];
+        colorImg.onload = () => {
+          colorCtx.drawImage(colorImg, 0, 0, coloredCanvas.width, coloredCanvas.height);
+        };
       }
       
-      if (pagesToColor.length === 0) {
-        showToast('所有頁面都已上色！', 'success');
-        return;
-      }
-      
-      showLoading('AI 上色中...', `第 ${pagesToColor[0]} / ${totalPages} 頁`);
-      
-      for (let i = 0; i < pagesToColor.length; i++) {
-        const pageNum = pagesToColor[i];
-        pageStates[pageNum - 1] = 'coloring';
-        
-        document.querySelectorAll('.page-thumb')[pageNum - 1].classList.add('coloring');
-        updateStatusBadge(pageNum);
-        updateStats();
-        
-        document.getElementById('loading-text').textContent = `第 ${pageNum} / ${totalPages} 頁`;
-        document.getElementById('progress-bar').style.width = `${((i + 1) / pagesToColor.length) * 100}%`;
-        
-        try {
-          await colorizePage(pageNum);
-          pageStates[pageNum - 1] = 'colored';
-          document.querySelectorAll('.page-thumb')[pageNum - 1].classList.remove('coloring');
-        } catch (error) {
-          pageStates[pageNum - 1] = 'pending';
-          document.querySelectorAll('.page-thumb')[pageNum - 1].classList.remove('coloring');
-          showToast(`第 ${pageNum} 頁上色失敗: ${error.message}`, 'error');
-        }
-        
-        updateStatusBadge(pageNum);
-        updateStats();
-      }
-      
-      hideLoading();
-      showToast('所有頁面已上色完成！', 'success');
-      
-      if (currentPage) renderPage(currentPage);
-    }
-    
-    // imgBB API key for image hosting
-    const IMGBB_API_KEY = '5ac872b888c2b68e6cd901a53b642365';
-
-    async function uploadToImgBB(base64Image) {
-      const cleanBase64 = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
-      
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          image: cleanBase64,
-          expiration: '604800'
-        }).toString()
+      // Update thumbnails
+      document.querySelectorAll('.thumbnail').forEach((t, i) => {
+        t.classList.toggle('active', i + 1 === pageNum);
       });
       
-      const result = await response.json();
-      if (result.success && result.data && result.data.url) {
-        return result.data.url;
-      }
-      throw new Error('imgBB upload failed');
+      // Update nav buttons
+      document.getElementById('prev-page').disabled = pageNum <= 1;
+      document.getElementById('next-page').disabled = pageNum >= totalPages;
     }
-
+    
+    function goToPageFromInput() {
+      const pageNum = parseInt(document.getElementById('page-input').value);
+      if (pageNum >= 1 && pageNum <= totalPages) {
+        renderPage(pageNum);
+      }
+    }
+    
+    // Image hosting services to try
+    const HOSTING_SERVICES = [
+      {
+        name: 'litterbox',
+        upload: async (base64) => {
+          const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+          const binary = atob(cleanBase64);
+          const array = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+          }
+          
+          const formData = new FormData();
+          formData.append('reqtype', 'fileurl');
+          formData.append('time', '72h'); // Keep for 72 hours
+          formData.append('fileToUpload', new Blob([array]), 'image.png');
+          
+          const response = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+            method: 'POST',
+            body: formData
+          });
+          
+          const text = await response.text();
+          if (text.startsWith('https://')) {
+            return text;
+          }
+          throw new Error('litterbox failed: ' + text);
+        }
+      },
+      {
+        name: 'tempimg',
+        upload: async (base64) => {
+          const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+          const binary = atob(cleanBase64);
+          const array = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+          }
+          
+          const formData = new FormData();
+          formData.append('image', new Blob([array]), 'image.png');
+          
+          const response = await fetch('https://tempimg.net/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+          
+          const result = await response.json();
+          if (result.url) {
+            return result.url;
+          }
+          throw new Error('tempimg failed');
+        }
+      },
+      {
+        name: 'imgbb',
+        upload: async (base64) => {
+          const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+          
+          const response = await fetch('https://api.imgbb.com/1/upload?key=5ac872b888c2b68e6cd901a53b642365', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              image: cleanBase64,
+              expiration: '604800'
+            }).toString()
+          });
+          
+          const result = await response.json();
+          if (result.success && result.data && result.data.url) {
+            return result.data.url;
+          }
+          throw new Error('imgbb failed');
+        }
+      }
+    ];
+    
+    async function uploadImage(base64) {
+      const errors = [];
+      
+      for (const service of HOSTING_SERVICES) {
+        try {
+          console.log('Trying:', service.name);
+          const url = await service.upload(base64);
+          console.log('Success with:', service.name, url);
+          return url;
+        } catch (e) {
+          console.log('Failed:', service.name, e.message);
+          errors.push(`${service.name}: ${e.message}`);
+        }
+      }
+      
+      throw new Error('所有圖床都失敗: ' + errors.join('; '));
+    }
+    
     async function colorizePage(pageNum) {
       const imageBase64 = pageImages[pageNum - 1];
       
-      // First upload to imgBB to get a public URL
+      // Upload to image hosting
       let imageUrl;
       try {
-        imageUrl = await uploadToImgBB(imageBase64);
+        imageUrl = await uploadImage(imageBase64);
       } catch (e) {
         throw new Error('圖片上傳失敗: ' + e.message);
       }
@@ -787,6 +863,7 @@
       
       if (result.success && result.imageUrl) {
         coloredImages[pageNum - 1] = result.imageUrl;
+        pageStates[pageNum - 1] = 'colored';
         
         if (currentPage === pageNum) {
           coloredCanvas.width = pageCanvases[pageNum - 1].width;
@@ -801,6 +878,31 @@
       } else {
         throw new Error(result.error || '上色失敗');
       }
+    }
+    
+    async function colorizeAllPages() {
+      showLoading('AI 上色中...', `第 1 / ${totalPages} 頁`);
+      
+      for (let i = 1; i <= totalPages; i++) {
+        if (pageStates[i - 1] !== 'approved') {
+          try {
+            await colorizePage(i);
+          } catch (e) {
+            showToast(`第 ${i} 頁上色失敗: ${e.message}`, 'error');
+          }
+        }
+        
+        document.getElementById('loading-subtitle').textContent = `第 ${i} / ${totalPages} 頁`;
+        document.getElementById('progress-fill').style.width = `${(i / totalPages) * 100}%`;
+        
+        renderThumbnails();
+        updateStats();
+      }
+      
+      hideLoading();
+      showToast('所有頁面已上色完成！', 'success');
+      
+      if (currentPage) renderPage(currentPage);
     }
     
     function setupPageNav() {
@@ -824,7 +926,7 @@
         pageStates[currentPage - 1] = 'approved';
         renderPage(currentPage);
         updateStats();
-        showToast('已接受本頁', 'success');
+        showToast('已確認本頁', 'success');
         
         if (currentPage < totalPages) {
           setTimeout(() => renderPage(currentPage + 1), 300);
@@ -861,30 +963,80 @@
         originalScroll.scrollLeft = coloredScroll.scrollLeft;
         requestAnimationFrame(() => syncing = false);
       });
+      
+      document.getElementById('bg-color-picker').addEventListener('input', (e) => {
+        if (currentPage) renderPage(currentPage);
+      });
     }
     
     async function downloadPDF() {
-      showToast('請先為所有頁面上色', 'info');
+      showLoading('生成 PDF 中...', '');
+      
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      for (let i = 0; i < totalPages; i++) {
+        const imgSrc = coloredImages[i] || pageImages[i];
+        const img = new Image();
+        img.src = imgSrc;
+        await new Promise(resolve => img.onload = resolve);
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        
+        if (i > 0) pdf.addPage();
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const ratio = Math.min(pdfWidth / img.width, pdfHeight / img.height);
+        const imgWidth = img.width * ratio;
+        const imgHeight = img.height * ratio;
+        const x = (pdfWidth - imgWidth) / 2;
+        const y = (pdfHeight - imgHeight) / 2;
+        
+        pdf.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight);
+        
+        document.getElementById('loading-subtitle').textContent = `處理第 ${i + 1} / ${totalPages} 頁`;
+      }
+      
+      pdf.save('colored_document.pdf');
+      hideLoading();
+      showToast('PDF 下載完成！', 'success');
     }
     
-    function showLoading(title, text) {
+    function showLoading(title, subtitle) {
       document.getElementById('loading-title').textContent = title;
-      document.getElementById('loading-text').textContent = text;
-      document.getElementById('progress-bar').style.width = '0%';
-      loadingOverlay.classList.add('active');
+      document.getElementById('loading-subtitle').textContent = subtitle;
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('loading-overlay').classList.remove('hidden');
     }
     
     function hideLoading() {
-      loadingOverlay.classList.remove('active');
+      document.getElementById('loading-overlay').classList.add('hidden');
     }
     
     function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
       toast.textContent = message;
-      toast.className = `toast ${type} show`;
-      setTimeout(() => toast.classList.remove('show'), 3000);
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 5000);
     }
     
-    init();
+    // Load jsPDF for download
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    document.head.appendChild(script);
+    
+    // Initialize
+    setupPageNav();
+    setupActions();
+    setupSyncScroll();
   </script>
 </body>
 </html>
