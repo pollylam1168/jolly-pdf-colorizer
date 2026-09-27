@@ -1,15 +1,8 @@
 /**
  * Vercel Serverless Function - MiniMax PDF Colorization API
- * 
- * Flow:
- * 1. Receive base64 image from frontend
- * 2. Upload to temporary image hosting
- * 3. Send URL to MiniMax API
- * 4. Return colored result
  */
 
 const MINIMAX_API_URL = "https://api.minimax.io/v1/image_generation";
-const UPLOAD_API_URL = "https://tmpfiles.org/api/v1/upload";
 
 const COLOR_PROMPT = `Colorize this black and white children's educational worksheet. Keep ALL black outlines and text exactly the same. Add realistic, natural colors:
 
@@ -41,7 +34,6 @@ module.exports = async (req, res) => {
     const apiKey = process.env.MINIMAX_API_KEY;
 
     if (!apiKey) {
-      console.error('MINIMAX_API_KEY not configured');
       return res.status(500).json({ 
         error: 'API Key 未設置。請在 Vercel 設置 MINIMAX_API_KEY 環境變量。' 
       });
@@ -57,57 +49,76 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: '沒有上傳圖片' });
     }
 
-    console.log(`Processing page ${page}, image length: ${imageBase64.length}`);
-
-    // Clean up base64 - remove data URI prefix if present
+    // Clean up base64
     let cleanBase64 = imageBase64;
     if (imageBase64.includes(',')) {
       cleanBase64 = imageBase64.split(',')[1];
     }
 
-    // Validate base64
     if (!cleanBase64 || cleanBase64.length < 100) {
       return res.status(400).json({ error: '圖片數據太短或無效' });
     }
 
-    // Convert base64 to binary buffer
-    const imageBuffer = Buffer.from(cleanBase64, 'base64');
+    console.log(`Processing page ${page}, image length: ${cleanBase64.length}`);
 
-    console.log('Uploading image to tmpfiles.org...');
-
-    // Upload to tmpfiles.org
-    const formData = new FormData();
-    const blob = new Blob([imageBuffer], { type: 'image/png' });
-    formData.append('file', blob, 'image.png');
-
+    // Upload to imgbb
+    const imgbbApiKey = process.env.IMGBB_API_KEY;
     let uploadedUrl = null;
-    try {
-      const uploadResponse = await fetch(UPLOAD_API_URL, {
-        method: 'POST',
-        body: formData
-      });
 
-      const uploadResult = await uploadResponse.json();
-      console.log('Upload result:', JSON.stringify(uploadResult));
-
-      if ((uploadResult.status === 200 || uploadResult.status === 'success') && uploadResult.data && uploadResult.data.url) {
-        // Convert to direct download URL (tmpfiles.org returns a page URL)
-        uploadedUrl = uploadResult.data.url.replace('/file/', '/dl/');
-        console.log('Uploaded to:', uploadedUrl);
-      } else {
-        throw new Error('Upload failed: ' + JSON.stringify(uploadResult));
+    if (imgbbApiKey) {
+      console.log('Uploading to imgbb...');
+      try {
+        const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+          method: 'POST',
+          body: new URLSearchParams({
+            image: cleanBase64,
+            expiration: '604800'
+          })
+        });
+        const imgbbResult = await imgbbResponse.json();
+        if (imgbbResult.success && imgbbResult.data && imgbbResult.data.url) {
+          uploadedUrl = imgbbResult.data.url;
+          console.log('Uploaded to imgbb:', uploadedUrl);
+        }
+      } catch (e) {
+        console.log('imgbb upload failed, trying alternative...');
       }
-    } catch (uploadError) {
-      console.error('Upload error:', uploadError);
+    }
+
+    // Try uploading to catbox.moe as fallback
+    if (!uploadedUrl) {
+      console.log('Uploading to catbox.moe...');
+      try {
+        const imageBuffer = Buffer.from(cleanBase64, 'base64');
+        const formData = new FormData();
+        const blob = new Blob([imageBuffer], { type: 'image/png' });
+        formData.append('reqtype', 'fileurl');
+        formData.append('fileToUpload', blob, 'image.png');
+
+        const catboxResponse = await fetch('https://catbox.moe/user/api.php', {
+          method: 'POST',
+          body: formData
+        });
+        const catboxUrl = await catboxResponse.text();
+        if (catboxUrl.startsWith('https://')) {
+          uploadedUrl = catboxUrl;
+          console.log('Uploaded to catbox:', uploadedUrl);
+        }
+      } catch (e) {
+        console.log('catbox upload failed:', e.message);
+      }
+    }
+
+    if (!uploadedUrl) {
       return res.status(500).json({ 
         success: false, 
-        error: '圖片上傳失敗: ' + uploadError.message 
+        error: '圖片上傳失敗，請稍後再試' 
       });
     }
 
     console.log('Calling MiniMax API with URL:', uploadedUrl);
 
-    // Call MiniMax with URL instead of base64
+    // Call MiniMax with URL
     const miniMaxResponse = await fetch(MINIMAX_API_URL, {
       method: 'POST',
       headers: {
@@ -122,7 +133,7 @@ module.exports = async (req, res) => {
         subject_reference: [
           {
             type: "character",
-            image_file: uploadedUrl  // Use URL, not base64!
+            image_file: uploadedUrl
           }
         ]
       })
@@ -142,16 +153,12 @@ module.exports = async (req, res) => {
     try {
       result = JSON.parse(responseText);
     } catch (e) {
-      console.error('Failed to parse MiniMax response:', responseText.substring(0, 200));
       return res.status(500).json({ 
         success: false, 
         error: 'API 返回格式錯誤' 
       });
     }
 
-    console.log('MiniMax result keys:', Object.keys(result));
-
-    // Check for base64 image in response
     let base64Image = null;
     
     if (result.data && result.data[0] && result.data[0].base64) {
@@ -159,7 +166,6 @@ module.exports = async (req, res) => {
     } else if (result.base64) {
       base64Image = result.base64;
     } else if (result.data && result.data[0] && result.data[0].url) {
-      // If it returns URL instead of base64
       return res.status(200).json({
         success: true,
         imageUrl: result.data[0].url,
@@ -168,11 +174,9 @@ module.exports = async (req, res) => {
     }
 
     if (base64Image) {
-      const imageUrl = `data:image/png;base64,${base64Image}`;
-      
       return res.status(200).json({
         success: true,
-        imageUrl: imageUrl,
+        imageUrl: `data:image/png;base64,${base64Image}`,
         page: page
       });
     } else {
